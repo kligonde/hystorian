@@ -951,15 +951,15 @@ def threshold_noise(image, old_guess, thresh_range, iterations, old_diff=None):
     """
     if old_diff is None:
         binary = image > old_guess
-        binary_filt = medfilt(binary, 3)
-        old_diff = np.sum(np.abs(binary_filt - binary))
+        binary_filt = ndimage.median_filter(binary, size=3)
+        old_diff = np.sum(np.abs(binary_filt ^ binary))
     if iterations > 0:
         new_guesses = [old_guess - thresh_range, old_guess + thresh_range]
         diffs = []
         for thresh in new_guesses:
             binary = image > thresh
-            binary_filt = medfilt(binary, 3)
-            diffs.append(np.sum(np.abs(binary_filt - binary)))
+            binary_filt = ndimage.median_filter(binary, size=3)
+            diffs.append(np.sum(np.abs(binary_filt ^ binary)))
         best_i = np.argmin(diffs)
         best_guess = threshold_noise(image, new_guesses[best_i], thresh_range / 2, iterations - 1,
                                      diffs[best_i])
